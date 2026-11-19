@@ -7,7 +7,7 @@ seed: 42
 dataset:
   # UCI ML Repository id 231, CC BY 4.0. Reiss & Stricker (2012).
   url: "https://archive.ics.uci.edu/static/public/231/pamap2+physical+activity+monitoring.zip"
-  sha256: ""                     # pinned after the first verified download (see docs/data.md)
+  sha256: "76b3580bd5a804121f507717cb498c66a312ef5c774f4a78ac470e6558add352"  # verified on every download
   sessions: [protocol]           # protocol | optional
   activities: [1, 2, 3, 4, 5, 6, 7, 12, 13, 16, 17, 24]   # the 12 protocol activities
 
