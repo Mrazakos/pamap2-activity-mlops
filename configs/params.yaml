@@ -1,0 +1,101 @@
+# Single source of truth for the whole pipeline (also the DVC params file).
+# Every value can be overridden from the CLI: `python -m src.main train --set train.lr=3e-4`.
+# The fully resolved config of every run is logged to MLflow (params + resolved_config.json).
+
+seed: 42
+
+dataset:
+  # UCI ML Repository id 231, CC BY 4.0. Reiss & Stricker (2012).
+  url: "https://archive.ics.uci.edu/static/public/231/pamap2+physical+activity+monitoring.zip"
+  sha256: ""                     # pinned after the first verified download (see docs/data.md)
+  sessions: [protocol]           # protocol | optional
+  activities: [1, 2, 3, 4, 5, 6, 7, 12, 13, 16, 17, 24]   # the 12 protocol activities
+
+data:
+  version: v2                    # selects a cleaning profile below; git tags data-v1 / data-v2
+  sensor_subset: all             # all | wrist_hr | wrist | chest_hr
+
+paths:
+  zip_path: data/external/pamap2.zip
+  extract_dir: data/external/extracted
+  raw_dir: data/raw
+  clean_dir: data/clean
+  processed_dir: data/processed
+  features_dir: data/features
+  versions_dir: data/versions
+  models_dir: models
+  reports_dir: reports
+  runs_dir: runs
+
+clean:
+  v1:                            # naive baseline cleaning
+    drop_transient: true
+    drop_duplicates: false
+    channels: all                # all = every sensor column incl. orientation, +-6 g, temperature
+    clip_to_sensor_range: false
+    interpolate_limit: null      # null = interpolate every NaN run, whatever its length
+    hr_ffill_limit: null         # null = heart rate interpolated like any other channel
+    max_gap_seconds: null        # null = not gap-aware: one segment per recording
+    split_on_label_change: false
+    min_label_purity: 0.0        # window label = majority label, mixed windows kept
+  v2:                            # full quality pipeline
+    drop_transient: true
+    drop_duplicates: true
+    channels: motion             # +-16 g accelerometer, gyroscope, magnetometer (+ heart rate)
+    clip_to_sensor_range: true   # clip spikes to the physical sensor range
+    interpolate_limit: 10        # samples (0.1 s); longer NaN bursts are dropped
+    hr_ffill_limit: 200          # samples (2 s); HR is sampled at ~9 Hz
+    max_gap_seconds: 0.05        # a larger timestamp step starts a new segment
+    split_on_label_change: true
+    min_label_purity: 1.0        # windows never mix activities
+
+split:
+  # Fixed before any training (rationale in docs/data.md). Test is only used for the final evaluation.
+  val_subjects: [105]
+  test_subjects: [106]
+
+windows:
+  window_seconds: 5.12
+  overlap: 0.5
+  downsample: 1                  # integer decimation factor applied before windowing
+
+features:
+  percentiles: [10, 25, 50, 75, 90]
+  fft_bands_hz: [[0.0, 1.0], [1.0, 3.0], [3.0, 5.0], [5.0, 10.0], [10.0, 20.0]]
+  chunk_size: 256
+
+baseline:
+  model: random_forest           # random_forest | logistic_regression
+  n_estimators: 300
+  max_depth: null
+  min_samples_leaf: 1
+  class_weight: balanced         # balanced | null
+  lr_c: 1.0
+  lr_max_iter: 3000
+  n_jobs: 4
+
+model:
+  name: cnn                      # cnn | cnn_gru
+  conv_channels: [64, 128, 128]
+  kernel_size: 7
+  dropout: 0.3
+  gru_hidden: 128
+  gru_layers: 1
+
+train:
+  lr: 0.001
+  batch_size: 64
+  epochs: 40
+  weight_decay: 0.0001
+  class_weighting: true
+  patience: 8
+  scheduler: none                # none | cosine
+  num_workers: 2
+  log_every_n_steps: 20
+  device: auto                   # auto | cpu | cuda
+  max_windows_per_split: null    # cap for smoke tests only
+  eval_test: false               # test is evaluated once, by `evaluate`, for the final model
+
+tracking:
+  experiment: shmqak-pamap2-har  # MLFLOW_EXPERIMENT env var takes precedence
+  run_name: null                 # null = generated from the config
