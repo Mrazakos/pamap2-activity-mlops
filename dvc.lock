@@ -1,0 +1,141 @@
+schema: '2.0'
+stages:
+  clean:
+    cmd: python -m src.main clean
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: eb64b8474a3025cf8bf4630b8a00a254.dir
+      size: 1250101480
+      nfiles: 20
+    - path: src/clean.py
+      hash: md5
+      md5: 2ff758c2f513d4094fae429a3ec7aaf9
+      size: 12678
+    - path: src/constants.py
+      hash: md5
+      md5: 0e4d6f9f012bca3e326889db8b8505a5
+      size: 3582
+    - path: src/schemas.py
+      hash: md5
+      md5: ddbe1a9c303f7a2a1d1fb63e7cb87254
+      size: 6710
+    params:
+      configs/params.yaml:
+        clean:
+          v1:
+            drop_transient: true
+            drop_duplicates: false
+            channels: all
+            clip_to_sensor_range: false
+            interpolate_limit:
+            hr_ffill_limit:
+            max_gap_seconds:
+            split_on_label_change: false
+            min_label_purity: 0.0
+          v2:
+            drop_transient: true
+            drop_duplicates: true
+            channels: motion
+            clip_to_sensor_range: true
+            interpolate_limit: 10
+            hr_ffill_limit: 200
+            max_gap_seconds: 0.05
+            split_on_label_change: true
+            min_label_purity: 1.0
+        data.version: v1
+        dataset.activities:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 12
+        - 13
+        - 16
+        - 17
+        - 24
+        dataset.sessions:
+        - protocol
+    outs:
+    - path: data/clean
+      hash: md5
+      md5: c7238dce9fe90911e1d3a6140a5df78d.dir
+      size: 367721589
+      nfiles: 2
+  split_window:
+    cmd: python -m src.main preprocess
+    deps:
+    - path: data/clean
+      hash: md5
+      md5: c7238dce9fe90911e1d3a6140a5df78d.dir
+      size: 367721589
+      nfiles: 2
+    - path: src/schemas.py
+      hash: md5
+      md5: ddbe1a9c303f7a2a1d1fb63e7cb87254
+      size: 6710
+    - path: src/split.py
+      hash: md5
+      md5: fd647739c56beb4fb54e92a951c7bd12
+      size: 5028
+    - path: src/windows.py
+      hash: md5
+      md5: 5f6dfef47004bde7f069477d0fad5b17
+      size: 15880
+    params:
+      configs/params.yaml:
+        clean:
+          v1:
+            drop_transient: true
+            drop_duplicates: false
+            channels: all
+            clip_to_sensor_range: false
+            interpolate_limit:
+            hr_ffill_limit:
+            max_gap_seconds:
+            split_on_label_change: false
+            min_label_purity: 0.0
+          v2:
+            drop_transient: true
+            drop_duplicates: true
+            channels: motion
+            clip_to_sensor_range: true
+            interpolate_limit: 10
+            hr_ffill_limit: 200
+            max_gap_seconds: 0.05
+            split_on_label_change: true
+            min_label_purity: 1.0
+        data:
+          version: v1
+          sensor_subset: all
+        dataset.activities:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 12
+        - 13
+        - 16
+        - 17
+        - 24
+        split:
+          val_subjects:
+          - 102
+          test_subjects:
+          - 101
+        windows:
+          window_seconds: 5.12
+          overlap: 0.5
+          downsample: 1
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: c5130e911ab4f6ca99f93aab744b8b36.dir
+      size: 54033
+      nfiles: 3
