@@ -1,0 +1,49 @@
+# --- Environments
+.venv/
+venv/
+.env
+
+# --- Data and models: versioned with DVC, never with git
+/data/*
+!/data/*.dvc
+!/data/.gitignore
+/models/
+reference/
+*.dat
+*.zip
+*.parquet
+*.csv
+*.npy
+*.npz
+*.pt
+*.pth
+*.safetensors
+*.joblib
+*.pkl
+
+# --- Experiment tracking state (lives on /shared, never in the repo)
+mlruns/
+mlflow.db
+mlartifacts/
+runs/
+reports/eda/
+*.mlflow-export.tar.gz
+
+# --- Python / tooling caches
+__pycache__/
+*.pyc
+.coverage
+coverage.xml
+junit.xml
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+site/
+
+# --- Slurm logs
+slurm/logs/
+*.out
+
+# --- Editors
+.idea/
+.vscode/

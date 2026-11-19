@@ -1,0 +1,8 @@
+# Normalise line endings: the code is edited on Windows but runs on Linux (Slurm rejects CRLF scripts).
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.png binary
+*.jpg binary

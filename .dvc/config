@@ -1,0 +1,5 @@
+[core]
+    remote = shared
+    analytics = false
+['remote "shared"']
+    url = /shared/shmqak/dvc-remote/pamap2-activity-mlops
