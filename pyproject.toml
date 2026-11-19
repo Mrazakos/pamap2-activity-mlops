@@ -1,0 +1,60 @@
+[project]
+name = "pamap2-activity-mlops"
+version = "0.1.0"
+description = "Reproducible activity recognition on PAMAP2 (IMU + heart rate): baseline vs 1D CNN, tracked with MLflow and DVC."
+readme = "README.md"
+requires-python = "==3.13.*"
+license = { text = "MIT" }
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"
+extend-exclude = ["reference"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "D", "ANN", "B", "SIM", "RUF", "N"]
+ignore = [
+    "E501",    # line length is handled by the formatter
+    "ANN401",  # Any is acceptable for genuinely dynamic values (configs, MLflow payloads)
+    "D105",    # magic methods are self-explanatory
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D103"]          # test functions are documented by their names + module docstring
+"src/main.py" = ["B008"]       # Typer's option defaults
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["pathlib.Path"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers"
+markers = [
+    "model: needs a trained model bundle (auto-skipped when none is present, e.g. in CI)",
+    "integration: end-to-end CLI tests on synthetic data",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:mlflow.*",
+    "ignore::FutureWarning:mlflow.*",
+    "ignore:vert. bool was deprecated:matplotlib.MatplotlibDeprecationWarning",  # inside seaborn.boxplot
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude_also = [
+    "if __name__ == .__main__.:",
+    "pragma: no cover",
+    "if torch.cuda.is_available\\(\\):",
+]

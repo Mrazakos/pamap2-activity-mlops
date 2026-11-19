@@ -1,0 +1,6 @@
+# Round A: learning rate of the 1D CNN; everything else fixed (see docs/experiments.md).
+# Submit: scripts/submit_sweep.sh configs/sweeps/round_a_lr.txt "Round A: which LR trains the CNN best?"
+train.lr=0.01
+train.lr=0.001
+train.lr=0.0003
+train.lr=0.0001

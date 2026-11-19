@@ -1,0 +1,46 @@
+# Install once per clone:  pre-commit install
+# Run on everything:       pre-commit run --all-files
+# The local hooks use the active environment (conda env `mlops` on the cluster, .venv on a laptop).
+default_language_version:
+  python: python3
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--unsafe]           # mkdocs.yml uses python tags
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-added-large-files
+        args: [--maxkb=500]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.5                  # same version as the pinned ruff in requirements.txt
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: no-data
+        name: block data, models, credentials and tracking state
+        entry: python scripts/check_no_data.py
+        language: system
+        types: [file]
+      - id: notebooks-stripped
+        name: notebooks must have no outputs
+        entry: python scripts/check_notebooks.py
+        language: system
+        files: \.ipynb$
+      - id: pytest
+        name: pytest (fast suite; model tests run when a trained model is present)
+        entry: python -m pytest -q -x
+        language: system
+        pass_filenames: false
+        always_run: true
