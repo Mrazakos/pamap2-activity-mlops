@@ -124,6 +124,7 @@ def write_raw(raw_dir: Path, subjects: Sequence[int] = (101, 102, 103, 104)) -> 
 
 
 TINY_OVERRIDES: tuple[str, ...] = (
+    "data.version=v2",  # independent of the version the repo default currently builds
     "split.val_subjects=[103]",
     "split.test_subjects=[104]",
     "windows.window_seconds=1.28",
