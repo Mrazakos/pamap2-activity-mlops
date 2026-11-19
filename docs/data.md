@@ -38,6 +38,39 @@ All figures and `eda_summary.json` are logged to the MLflow run tagged `stage=ed
 | Duplicated or backward timestamps | none in any recording |
 | Timestamp gaps inside a raw file | none: the clock steps by exactly 0.01 s. Gaps appear only *after* transient and NaN rows are removed, which is where segments must be split |
 
+## Data-quality issues: found, fixed and counted
+
+Each rule is a small, unit-tested function in `src/clean.py`. Both profiles run through the same
+code; the counts below come from `data/clean/meta.json` and the MLflow runs tagged `stage=clean`
+(Protocol sessions, 2,872,533 raw rows).
+
+| Issue (how it was found) | Rule | data-v1 (naive) | data-v2 (full) |
+|---|---|---|---|
+| Transient label 0 between activities (EDA, readme) | drop rows | 929,661 rows | 929,661 rows |
+| Heart rate only on every 11th row (EDA) | v1: interpolate; v2: carry the last reading forward ≤ 2 s (causal) | 2,610,265 values filled | 2,610,147 values filled |
+| NaN bursts from dropped packets (EDA) | v1: interpolate everything; v2: interpolate runs of ≤ 10 samples (0.1 s), drop rows in longer gaps | 483,701 values interpolated, 0 rows dropped | 236,016 values interpolated, **904 rows dropped** |
+| ±6 g accelerometer saturates (EDA: 3.9 % of running rows) | v2 keeps only the ±16 g accelerometer | 6,496 saturated values kept | channel removed |
+| Orientation columns invalid (readme) | v2 removes them | kept | removed |
+| Temperature is a slow environmental signal, not movement (a design choice: it could act as a shortcut for the recording session) | v2 removes it | kept | removed |
+| Spikes beyond the sensor range (EDA: up to 160.5 m/s²) | v2 clips to ±16 g, ±2000 °/s, 30-230 bpm | not clipped | **13 values clipped** |
+| Discontinuities after rows are removed; activity boundaries | v2 starts a new segment at a step > 0.05 s or a label change; windows never cross segments | 9 segments (one per file) | **156 segments** |
+| Windows that mix two activities | v1 keeps them with the majority label; v2 drops them | 7,575 windows | 7,373 windows |
+| Duplicated timestamps (candidate) | v2 keeps the first | not checked | 0 found |
+| Channels used by the models | | 52 | 28 (3 × [acc ±16 g, gyro, mag] + HR) |
+
+The clean data is validated by the Pandera `clean` schema (no NaN, known labels, increasing
+timestamps, sensor ranges for v2, one activity per segment) before it is written.
+
+## Data versions
+
+| Tag | Profile | `data/clean` hash | Windows (train / val / test) |
+|---|---|---|---|
+| `data-v1` | naive | `c7238dce9fe90911e1d3a6140a5df78d.dir` | 5,573 / 1,027 / 975 |
+| `data-v2` | full quality pipeline | `fd82a96c985b17672da647b989f1ee5e.dir` | 5,425 / 999 / 949 |
+
+Both versions were produced by `dvc repro` in Slurm CPU jobs and pushed to the DVC remote.
+Restoring them is described in [Reproducibility](reproducibility.md).
+
 ## Split and leakage controls
 
 **Rule, fixed before any training.** A validation or test subject must have performed every
