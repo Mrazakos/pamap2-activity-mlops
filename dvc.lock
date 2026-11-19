@@ -139,3 +139,135 @@ stages:
       md5: 39675fb1a4f61eab2470193c5ddeecb6.dir
       size: 50961
       nfiles: 3
+  features:
+    cmd: python -m src.main features
+    deps:
+    - path: data/clean
+      hash: md5
+      md5: fd82a96c985b17672da647b989f1ee5e.dir
+      size: 215551511
+      nfiles: 2
+    - path: data/processed
+      hash: md5
+      md5: 39675fb1a4f61eab2470193c5ddeecb6.dir
+      size: 50961
+      nfiles: 3
+    - path: src/features.py
+      hash: md5
+      md5: 1d25c5cab1e48f527a15609a39076461
+      size: 10759
+    - path: src/windows.py
+      hash: md5
+      md5: 5f6dfef47004bde7f069477d0fad5b17
+      size: 15880
+    params:
+      configs/params.yaml:
+        clean:
+          v1:
+            drop_transient: true
+            drop_duplicates: false
+            channels: all
+            clip_to_sensor_range: false
+            interpolate_limit:
+            hr_ffill_limit:
+            max_gap_seconds:
+            split_on_label_change: false
+            min_label_purity: 0.0
+          v2:
+            drop_transient: true
+            drop_duplicates: true
+            channels: motion
+            clip_to_sensor_range: true
+            interpolate_limit: 10
+            hr_ffill_limit: 200
+            max_gap_seconds: 0.05
+            split_on_label_change: true
+            min_label_purity: 1.0
+        data:
+          version: v2
+          sensor_subset: all
+        dataset.activities:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 12
+        - 13
+        - 16
+        - 17
+        - 24
+        features:
+          percentiles:
+          - 10
+          - 25
+          - 50
+          - 75
+          - 90
+          fft_bands_hz:
+          - - 0.0
+            - 1.0
+          - - 1.0
+            - 3.0
+          - - 3.0
+            - 5.0
+          - - 5.0
+            - 10.0
+          - - 10.0
+            - 20.0
+          chunk_size: 256
+        split:
+          val_subjects:
+          - 102
+          test_subjects:
+          - 101
+        windows:
+          window_seconds: 5.12
+          overlap: 0.5
+          downsample: 1
+    outs:
+    - path: data/features
+      hash: md5
+      md5: ab81619310cbae7e0fd68cc509693dd3.dir
+      size: 19013706
+      nfiles: 2
+  baseline:
+    cmd: python -m src.main baseline --output-dir models/baseline
+    deps:
+    - path: data/features
+      hash: md5
+      md5: ab81619310cbae7e0fd68cc509693dd3.dir
+      size: 19013706
+      nfiles: 2
+    - path: src/evaluate.py
+      hash: md5
+      md5: 0010d166110d916db5d2c79e8f773614
+      size: 8552
+    - path: src/models/baseline.py
+      hash: md5
+      md5: 7f8228a0a9172a5d05e5c1806cdd8a73
+      size: 2474
+    - path: src/train.py
+      hash: md5
+      md5: 06753f40178c70dcde99b1625164280c
+      size: 23542
+    params:
+      configs/params.yaml:
+        baseline:
+          model: random_forest
+          n_estimators: 300
+          max_depth:
+          min_samples_leaf: 1
+          class_weight: balanced
+          lr_c: 1.0
+          lr_max_iter: 3000
+          n_jobs: 4
+        seed: 42
+    outs:
+    - path: models/baseline
+      hash: md5
+      md5: f0529c55397a17f52f2bce52d8ca0e7a.dir
+      size: 3346076
+      nfiles: 2
