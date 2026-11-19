@@ -96,6 +96,34 @@ def activity_coverage(
     return missing
 
 
+def rank_evaluation_candidates(
+    seconds: Mapping[int, Mapping[int, float]], activities: Sequence[int], min_seconds: float
+) -> list[tuple[int, float]]:
+    """Rank subjects by how well they can serve as validation/test subjects.
+
+    The rule used to fix the split before training: a subject is eligible only
+    if it performed **every** target activity for at least ``min_seconds``
+    (otherwise per-class metrics on that subject are undefined or rest on a
+    handful of windows). Eligible subjects are ranked by their *smallest*
+    per-activity duration, largest first, so the chosen subjects give every
+    class as many evaluation windows as possible. Ties break on subject id.
+
+    Args:
+        seconds: ``{subject: {activity_id: seconds of data}}``.
+        activities: Target activity IDs.
+        min_seconds: Minimum duration per activity to be eligible.
+
+    Returns:
+        ``(subject, smallest per-activity seconds)`` for eligible subjects, best first.
+    """
+    ranked = []
+    for subject, per_activity in seconds.items():
+        smallest = min(float(per_activity.get(a, 0.0)) for a in activities)
+        if smallest >= min_seconds:
+            ranked.append((int(subject), smallest))
+    return sorted(ranked, key=lambda item: (-item[1], item[0]))
+
+
 def loso_folds(subjects: Sequence[int]) -> list[SplitConfig]:
     """Leave-one-subject-out folds.
 

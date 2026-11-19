@@ -12,6 +12,7 @@ from src.split import (
     assert_no_overlap,
     assign_splits,
     loso_folds,
+    rank_evaluation_candidates,
     subjects_by_split,
 )
 
@@ -40,6 +41,21 @@ def test_activity_coverage_reports_missing() -> None:
     df = pd.DataFrame({"subject_id": [101, 105, 106], "activity_id": [1, 1, 2]})
     missing = activity_coverage(df, assign_splits([101, 105, 106], SPLIT), [1, 2])
     assert missing == {"train": [2], "val": [2], "test": [1]}
+
+
+def test_rank_evaluation_candidates() -> None:
+    seconds = {
+        101: {1: 200.0, 2: 129.0},
+        102: {1: 300.0, 2: 92.0},
+        103: {1: 500.0},  # never performed activity 2 -> not eligible
+        104: {1: 90.0, 2: 3.0},  # too little of activity 2
+        105: {1: 92.0, 2: 400.0},  # ties with 102 on the minimum -> lower id first
+    }
+    assert rank_evaluation_candidates(seconds, [1, 2], min_seconds=10.24) == [
+        (101, 129.0),
+        (102, 92.0),
+        (105, 92.0),
+    ]
 
 
 def test_loso_folds_rotate_every_subject() -> None:

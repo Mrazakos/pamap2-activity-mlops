@@ -50,9 +50,11 @@ clean:
     min_label_purity: 1.0        # windows never mix activities
 
 split:
-  # Fixed before any training (rationale in docs/data.md). Test is only used for the final evaluation.
-  val_subjects: [105]
-  test_subjects: [106]
+  # Fixed before any training (rule + numbers in docs/data.md): eval subjects must have every
+  # protocol activity; ranked by their smallest per-activity duration -> 101 (test), 102 (val).
+  # Test is only used for the final evaluation.
+  val_subjects: [102]
+  test_subjects: [101]
 
 windows:
   window_seconds: 5.12
