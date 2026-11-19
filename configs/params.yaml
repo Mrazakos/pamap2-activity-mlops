@@ -12,7 +12,7 @@ dataset:
   activities: [1, 2, 3, 4, 5, 6, 7, 12, 13, 16, 17, 24]   # the 12 protocol activities
 
 data:
-  version: v1                    # selects a cleaning profile below; git tags data-v1 / data-v2
+  version: v2                    # selects a cleaning profile below; git tags data-v1 / data-v2
   sensor_subset: all             # all | wrist_hr | wrist | chest_hr
 
 paths:
