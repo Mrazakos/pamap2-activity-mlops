@@ -1,0 +1,38 @@
+# Direct dependencies, every one pinned exactly (==).
+# The full resolved environment (all transitive packages) is in requirements-lock.txt.
+# Python 3.13. CUDA 12.6 PyTorch build, as recommended by the DeepCluster onboarding guide.
+--extra-index-url https://download.pytorch.org/whl/cu126
+
+# --- ML / data -------------------------------------------------------------
+torch==2.14.1+cu126
+numpy==2.5.5
+pandas==3.1.1
+pyarrow==26.0.1
+scipy==1.18.1
+scikit-learn==1.9.1
+pandera[pandas]==0.36.0
+pydantic==2.14.4
+PyYAML==6.0.3
+
+# --- MLOps -----------------------------------------------------------------
+mlflow==3.18.0
+dvc==3.67.1
+
+# --- CLI / utilities -------------------------------------------------------
+typer==0.29.2
+python-dotenv==1.2.4
+tqdm==4.70.1
+
+# --- Visualisation ---------------------------------------------------------
+matplotlib==3.11.2
+seaborn==0.13.2
+
+# --- Dev: tests, lint, docs ------------------------------------------------
+pytest==9.2.0
+pytest-cov==7.1.0
+pytest-mock==3.17.0
+ruff==0.17.5
+pre-commit==4.7.0
+mkdocs==1.6.1
+mkdocstrings==1.0.8
+mkdocstrings-python==2.0.11
