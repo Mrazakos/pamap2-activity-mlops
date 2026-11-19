@@ -1,0 +1,7 @@
+# Baseline sweep (CPU). One config per line: space-separated --set overrides.
+# Submit: COMMAND=baseline scripts/submit_sweep.sh configs/sweeps/baseline.txt "Baseline: forest size/depth"
+baseline.n_estimators=100 baseline.max_depth=null
+baseline.n_estimators=300 baseline.max_depth=null
+baseline.n_estimators=500 baseline.max_depth=null
+baseline.n_estimators=300 baseline.max_depth=20
+baseline.model=logistic_regression

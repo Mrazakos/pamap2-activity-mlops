@@ -1,0 +1,105 @@
+# Versioned pipeline. Raw data (data/raw) is added with `dvc add`; every later artefact is a stage output.
+# CPU stages:  sbatch slurm/repro.sh baseline
+# Everything:  sbatch --gres=gpu:rtx2080ti:1 --job-name=repro-gpu slurm/repro.sh
+stages:
+  clean:
+    cmd: python -m src.main clean
+    deps:
+      - data/raw
+      - src/clean.py
+      - src/schemas.py
+      - src/constants.py
+    params:
+      - configs/params.yaml:
+          - data.version
+          - dataset.sessions
+          - dataset.activities
+          - clean
+    outs:
+      - data/clean
+
+  split_window:
+    cmd: python -m src.main preprocess
+    deps:
+      - data/clean
+      - src/windows.py
+      - src/split.py
+      - src/schemas.py
+    params:
+      - configs/params.yaml:
+          - data
+          - split
+          - windows
+          - dataset.activities
+          - clean
+    outs:
+      - data/processed
+
+  features:
+    cmd: python -m src.main features
+    deps:
+      - data/clean
+      - data/processed
+      - src/features.py
+      - src/windows.py
+    params:
+      - configs/params.yaml:
+          - data
+          - split
+          - windows
+          - features
+          - dataset.activities
+          - clean
+    outs:
+      - data/features
+
+  baseline:
+    cmd: python -m src.main baseline --output-dir models/baseline
+    deps:
+      - data/features
+      - src/train.py
+      - src/models/baseline.py
+      - src/evaluate.py
+    params:
+      - configs/params.yaml:
+          - seed
+          - baseline
+    outs:
+      - models/baseline
+
+  train:
+    cmd: python -m src.main train --output-dir models/deep
+    deps:
+      - data/clean
+      - src/train.py
+      - src/models
+      - src/windows.py
+      - src/evaluate.py
+    params:
+      - configs/params.yaml:
+          - seed
+          - data
+          - split
+          - windows
+          - model
+          - train
+          - dataset.activities
+          - clean
+    outs:
+      - models/deep
+
+  evaluate:
+    cmd: >-
+      python -m src.main evaluate --model-dir models/baseline --report reports/baseline_test_metrics.json &&
+      python -m src.main evaluate --model-dir models/deep --report reports/deep_test_metrics.json
+    deps:
+      - models/baseline
+      - models/deep
+      - data/clean
+      - src/workflows.py
+      - src/evaluate.py
+    metrics:
+      - reports/baseline_test_metrics.json:
+          cache: false
+      - reports/deep_test_metrics.json:
+          cache: false
