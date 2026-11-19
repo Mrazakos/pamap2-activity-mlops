@@ -43,7 +43,7 @@ stages:
             max_gap_seconds: 0.05
             split_on_label_change: true
             min_label_purity: 1.0
-        data.version: v1
+        data.version: v2
         dataset.activities:
         - 1
         - 2
@@ -62,16 +62,16 @@ stages:
     outs:
     - path: data/clean
       hash: md5
-      md5: c7238dce9fe90911e1d3a6140a5df78d.dir
-      size: 367721589
+      md5: fd82a96c985b17672da647b989f1ee5e.dir
+      size: 215551511
       nfiles: 2
   split_window:
     cmd: python -m src.main preprocess
     deps:
     - path: data/clean
       hash: md5
-      md5: c7238dce9fe90911e1d3a6140a5df78d.dir
-      size: 367721589
+      md5: fd82a96c985b17672da647b989f1ee5e.dir
+      size: 215551511
       nfiles: 2
     - path: src/schemas.py
       hash: md5
@@ -109,7 +109,7 @@ stages:
             split_on_label_change: true
             min_label_purity: 1.0
         data:
-          version: v1
+          version: v2
           sensor_subset: all
         dataset.activities:
         - 1
@@ -136,6 +136,6 @@ stages:
     outs:
     - path: data/processed
       hash: md5
-      md5: c5130e911ab4f6ca99f93aab744b8b36.dir
-      size: 54033
+      md5: 39675fb1a4f61eab2470193c5ddeecb6.dir
+      size: 50961
       nfiles: 3
