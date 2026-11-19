@@ -7,7 +7,7 @@ seed: 42
 dataset:
   # UCI ML Repository id 231, CC BY 4.0. Reiss & Stricker (2012).
   url: "https://archive.ics.uci.edu/static/public/231/pamap2+physical+activity+monitoring.zip"
-  sha256: ""                     # pinned after the first verified download (see docs/data.md)
+  sha256: "76b3580bd5a804121f507717cb498c66a312ef5c774f4a78ac470e6558add352"  # verified on every download
   sessions: [protocol]           # protocol | optional
   activities: [1, 2, 3, 4, 5, 6, 7, 12, 13, 16, 17, 24]   # the 12 protocol activities
 
@@ -50,9 +50,11 @@ clean:
     min_label_purity: 1.0        # windows never mix activities
 
 split:
-  # Fixed before any training (rationale in docs/data.md). Test is only used for the final evaluation.
-  val_subjects: [105]
-  test_subjects: [106]
+  # Fixed before any training (rule + numbers in docs/data.md): eval subjects must have every
+  # protocol activity; ranked by their smallest per-activity duration -> 101 (test), 102 (val).
+  # Test is only used for the final evaluation.
+  val_subjects: [102]
+  test_subjects: [101]
 
 windows:
   window_seconds: 5.12

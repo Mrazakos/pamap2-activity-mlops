@@ -4,9 +4,12 @@ venv/
 .env
 
 # --- Data and models: versioned with DVC, never with git
-/data/*
-!/data/*.dvc
-!/data/.gitignore
+/data/raw
+/data/external
+/data/clean
+/data/processed
+/data/features
+/data/versions
 /models/
 reference/
 *.dat

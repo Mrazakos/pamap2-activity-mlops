@@ -31,6 +31,7 @@ from src.constants import (
     PROTOCOL_ACTIVITIES,
     RAW_SENSOR_COLUMNS,
 )
+from src.split import rank_evaluation_candidates
 from src.utils import get_logger, kv, write_json
 
 logger = get_logger(__name__)
@@ -187,6 +188,14 @@ def run_eda(cfg: Config, allow_dirty: bool = False) -> dict[str, Any]:
         "protocol_minutes_per_subject_activity": minutes_df.round(2).to_dict(orient="index"),
         "protocol_minutes_per_activity": minutes_df.sum().round(2).to_dict(),
         "subjects_missing_protocol_activities": missing,
+        "evaluation_subject_ranking": rank_evaluation_candidates(
+            {
+                int(s): {a: float(minutes_df.loc[s, ACTIVITY_NAMES[a]]) * 60 for a in PROTOCOL_ACTIVITIES}
+                for s in minutes_df.index
+            },
+            PROTOCOL_ACTIVITIES,
+            min_seconds=2 * cfg.windows.window_seconds,
+        ),
         "nan_rate_per_column": nan_rate.round(5).to_dict(),
         "channel_min": channel_min.round(3).to_dict(),
         "channel_max": channel_max.round(3).to_dict(),
