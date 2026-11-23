@@ -50,3 +50,6 @@ slurm/logs/
 # --- Editors
 .idea/
 .vscode/
+
+# Exploratory figures (viz/), regenerated from data and models
+/reports/figures/
