@@ -21,6 +21,8 @@ seed 42, AdamW, early stopping on val macro-F1 (patience 8, max 40 epochs), GPU 
   too low under-fits within 40 epochs.
 * **Runs.** `train.lr ∈ {1e-2, 1e-3, 3e-4, 1e-4}`, everything else fixed.
 * **Next.** The best LR is fixed for all later rounds.
+* **Status.** Submitted 2026-11-23 as Slurm job array 10466, MLflow parent run
+  `35dcc4d8c7fd4eabb888adaaca0ba767`.
 
 ## Round B: window length, then capacity and regularisation
 
