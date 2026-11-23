@@ -50,6 +50,8 @@ src/                  pipeline code (Typer CLI in src/main.py)
   models/{cnn,cnn_gru,baseline,bundle}.py  train.py  evaluate.py  tracking.py  workflows.py  utils.py
 slurm/                job scripts (all source slurm/common.sh)
 scripts/              commit guards, MLflow export/backup, results table
+viz/                  exploratory figures, not part of the pipeline (python -m viz.data_figures,
+                      python -m viz.predictions models/baseline); output in reports/figures/ (git-ignored)
 tests/                pytest suite (synthetic data only)
 docs/                 MkDocs site: data, experiments, results, weaknesses, reproducibility, checklist
 dvc.yaml dvc.lock     versioned pipeline
