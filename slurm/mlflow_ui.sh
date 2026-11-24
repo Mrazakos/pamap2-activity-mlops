@@ -12,5 +12,6 @@
 source slurm/common.sh
 PORT=$((5000 + RANDOM % 1000))
 echo "tunnel from the laptop:  ssh -L 5000:$(hostname):${PORT} deep21   then open http://localhost:5000"
-mlflow ui --backend-store-uri "$MLFLOW_TRACKING_URI" --default-artifact-root "$MLFLOW_ARTIFACT_ROOT" \
+# Serves the interim SQLite store (the university server has its own UI).
+mlflow ui --backend-store-uri "$MLFLOW_INTERIM_URI" --default-artifact-root "$MLFLOW_INTERIM_ARTIFACTS" \
     --host 0.0.0.0 --port "$PORT"

@@ -107,13 +107,15 @@ squeue --me; tail -f slurm/logs/<job>-<id>.out
 
 ## Experiment tracking (MLflow)
 
-* Store, chosen only via `MLFLOW_TRACKING_URI`. Interim: `sqlite:////shared/shmqak/mlflow/mlflow.db`
-  with artifacts in `/shared/shmqak/mlflow/artifacts`; experiment `shmqak-pamap2-har`.
-* UI: on deep21 `make mlflow-ui`, then on the laptop `ssh -L 5000:127.0.0.1:5000 deep21` and open
-  http://localhost:5000 (or run it as a job: `sbatch slurm/mlflow_ui.sh`).
-* Grader access: `scripts/export_mlflow.sh` packages database + artifacts into one archive
-  (shared privately, never committed); opening it elsewhere is described in
-  [docs/reproducibility.md](docs/reproducibility.md).
+* Store, chosen only via `MLFLOW_TRACKING_URI` (`.env`, read by `slurm/mlflow_env.sh` and
+  python-dotenv). Runs go to the **university MLflow server** `http://10.3.6.35:5000`
+  (login: Neptun code), experiment `shmqak-pamap2-har`; artifacts are uploaded through the server.
+* UI: the server is only reachable from the cluster network, so tunnel from the laptop:
+  `ssh -N -L 5001:10.3.6.35:5000 deep21` and open http://localhost:5001.
+* Without `.env` the interim store is used (`sqlite:////shared/shmqak/mlflow/mlflow.db`, artifacts
+  in `/shared/shmqak/mlflow/artifacts`). It holds the runs made before the server existed; browse
+  it with `make mlflow-ui` on deep21 or `sbatch slurm/mlflow_ui.sh`, package it with
+  `scripts/export_mlflow.sh` (never committed; see [docs/reproducibility.md](docs/reproducibility.md)).
 
 ## Data versioning (DVC)
 

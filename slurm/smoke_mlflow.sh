@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CPU-only smoke test: compute node -> internet, and compute node -> MLflow store on /shared.
+# CPU-only smoke test: compute node -> internet, and compute node -> MLflow store (.env or /shared).
 #   sbatch slurm/smoke_mlflow.sh
 #SBATCH --job-name=smoke-mlflow
 #SBATCH --account=mlops_2026_fall
@@ -25,7 +25,7 @@ import mlflow
 
 from src.tracking import get_or_create_experiment, with_retry
 
-exp_id = get_or_create_experiment(os.environ["MLFLOW_EXPERIMENT"], os.environ["MLFLOW_ARTIFACT_ROOT"])
+exp_id = get_or_create_experiment(os.environ["MLFLOW_EXPERIMENT"], os.environ.get("MLFLOW_ARTIFACT_ROOT") or None)
 with mlflow.start_run(experiment_id=exp_id, run_name="smoke-compute-node") as run:
     with_retry(mlflow.set_tags, {"stage": "smoke", "slurm.node": os.uname().nodename})
     with_retry(mlflow.log_param, "smoke_param", 1)

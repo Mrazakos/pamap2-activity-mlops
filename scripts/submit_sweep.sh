@@ -14,10 +14,8 @@ N=$(grep -cvE '^\s*(#|$)' "$SWEEP_FILE")
 set +u
 source /shared/anaconda/anaconda/bin/activate
 conda activate "${CONDA_ENV:-mlops}"
+source slurm/mlflow_env.sh
 set -u
-export MLFLOW_TRACKING_URI="${MLFLOW_TRACKING_URI:-sqlite:////shared/shmqak/mlflow/mlflow.db}"
-export MLFLOW_ARTIFACT_ROOT="${MLFLOW_ARTIFACT_ROOT:-/shared/shmqak/mlflow/artifacts}"
-export MLFLOW_EXPERIMENT="${MLFLOW_EXPERIMENT:-shmqak-pamap2-har}"
 
 PARENT_RUN_ID=$(python -m src.main sweep-init --name "$NAME" --hypothesis "$HYPOTHESIS" 2>/dev/null | tail -1)
 echo "parent run: $PARENT_RUN_ID  ($N configs from $SWEEP_FILE)"
