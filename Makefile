@@ -1,7 +1,7 @@
 # Convenience targets. Heavy work always goes through Slurm (see README "Running on the cluster").
 SHELL := /bin/bash
 PY ?= python
-MLFLOW_TRACKING_URI ?= sqlite:////shared/shmqak/mlflow/mlflow.db
+MLFLOW_ENV := source slurm/mlflow_env.sh >/dev/null &&
 MLFLOW_PORT ?= 5000
 
 .PHONY: help setup setup-cluster lint test test-all repro repro-cpu docs mlflow-ui export-runs export-mlflow init-mlflow no-data-history
@@ -41,13 +41,13 @@ docs:  ## build the documentation site (strict)
 	mkdocs build --strict
 
 init-mlflow:  ## create the MLflow schema + experiment once (single process!)
-	MLFLOW_TRACKING_URI=$(MLFLOW_TRACKING_URI) $(PY) -m src.main init-mlflow
+	$(MLFLOW_ENV) $(PY) -m src.main init-mlflow
 
-mlflow-ui:  ## MLflow UI on deep21 (localhost only); tunnel: ssh -L 5000:127.0.0.1:5000 deep21
-	mlflow ui --backend-store-uri $(MLFLOW_TRACKING_URI) --host 127.0.0.1 --port $(MLFLOW_PORT)
+mlflow-ui:  ## UI of the interim SQLite store on deep21 (localhost only); tunnel: ssh -L 5000:127.0.0.1:5000 deep21
+	source slurm/mlflow_env.sh >/dev/null && mlflow ui --backend-store-uri $$MLFLOW_INTERIM_URI --host 127.0.0.1 --port $(MLFLOW_PORT)
 
 export-runs:  ## refresh the runs table in docs/results.md from MLflow
-	MLFLOW_TRACKING_URI=$(MLFLOW_TRACKING_URI) $(PY) scripts/export_runs.py
+	$(MLFLOW_ENV) $(PY) scripts/export_runs.py
 
 export-mlflow:  ## package mlflow.db + artifacts for the grader (outside the repo)
 	bash scripts/export_mlflow.sh

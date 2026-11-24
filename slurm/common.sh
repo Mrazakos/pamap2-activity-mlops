@@ -22,10 +22,8 @@ export CUBLAS_WORKSPACE_CONFIG=:4096:8
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-1}"
 export MKL_NUM_THREADS="${SLURM_CPUS_PER_TASK:-1}"
 
-# --- experiment tracking (interim store; replace the URI when the university server is known)
-export MLFLOW_TRACKING_URI="${MLFLOW_TRACKING_URI:-sqlite:////shared/shmqak/mlflow/mlflow.db}"
-export MLFLOW_ARTIFACT_ROOT="${MLFLOW_ARTIFACT_ROOT:-/shared/shmqak/mlflow/artifacts}"
-export MLFLOW_EXPERIMENT="${MLFLOW_EXPERIMENT:-shmqak-pamap2-har}"
+# --- experiment tracking: university server from .env, else the interim SQLite store
+source slurm/mlflow_env.sh
 
 # --- the job's own log file, attached to the MLflow run at the end
 if [ -n "${SLURM_ARRAY_JOB_ID:-}" ]; then
