@@ -1,0 +1,10 @@
+# Round S: candidate fixes for the Round A failure modes, one change each vs. the reference
+# (CNN, lr 3e-4); see docs/experiments.md.
+# Submit: scripts/submit_sweep.sh configs/sweeps/round_s_solutions.txt "Round S: which change closes the gap to the baseline?"
+train.lr=0.0003
+train.lr=0.0003 model.name=cnn_gru
+train.lr=0.0003 model.dropout=0.5
+train.lr=0.0003 model.conv_channels=[32,64,64]
+train.lr=0.0003 train.weight_decay=0.001
+train.lr=0.0003 train.scheduler=cosine
+train.lr=0.0003 windows.window_seconds=2.56
